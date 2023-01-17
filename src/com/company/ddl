@@ -1,0 +1,73 @@
+CREATE TYPE Gender AS ENUM (
+    'Male', 'Female'
+    );
+
+CREATE TYPE MaritalStatus AS ENUM (
+    'Married', 'Single', 'Divorced', 'Widow'
+    );
+
+CREATE TYPE HouseType AS ENUM (
+    'House', 'Apartment'
+    );
+
+CREATE TABLE addresses (
+    id SERIAL PRIMARY KEY,
+    city VARCHAR,
+    region VARCHAR,
+    street VARCHAR
+);
+
+CREATE TABLE agencies (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    phone_number VARCHAR,
+    address_id INT REFERENCES addresses(id)
+);
+
+CREATE TABLE owners (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    email VARCHAR,
+    date_of_birth DATE,
+    gender Gender
+);
+
+CREATE TABLE customers (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    email VARCHAR,
+    date_of_birth DATE,
+    gender Gender,
+    nationality VARCHAR,
+    family_status MaritalStatus
+);
+
+CREATE TABLE houses (
+    id SERIAL PRIMARY KEY,
+    house_type HouseType,
+    price NUMERIC,
+    rating FLOAT,
+    description TEXT,
+    room INT,
+    furniture BOOLEAN,
+    address_id INT REFERENCES addresses(id),
+    owner_id INT REFERENCES owners(id)
+);
+
+CREATE TABLE rent_info (
+    id SERIAL PRIMARY KEY,
+    owner_id INT REFERENCES owners(id),
+    customer_id INT REFERENCES customers(id),
+    agency_id INT REFERENCES agencies(id),
+    house_id INT REFERENCES houses(id)
+);
+
+ALTER TABLE agencies ALTER COLUMN name SET NOT NULL;
+ALTER TABLE agencies ADD CONSTRAINT phone_number check ( phone_number LIKE '+996%');
+ALTER TABLE owners ADD UNIQUE (email);
+ALTER TABLE customers ADD UNIQUE (email);
+ALTER TABLE rent_info ADD COLUMN check_in DATE;
+ALTER TABLE rent_info ADD COLUMN check_out DATE;
+ALTER TABLE customers RENAME COLUMN family_status TO marital_status;
